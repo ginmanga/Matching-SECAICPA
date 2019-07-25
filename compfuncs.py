@@ -5,33 +5,64 @@ def pe_list(a):
     for i in a:
         print(i)
 
-def eq_name_match(a, b):
-    index_count = 0
 
+def remove_abbr(a, b):
+    """Removes abbreviations"""
+    # b = 0 return list
+    # b = 1 return lsit of list
+    a_lol = []
+    term_dict = {'MFG': 'MANUFACTURING', 'INTL': 'INTERNATIONAL', 'RLTY': 'REALTY', 'LTD': 'LIMITED'}
     for i in a:
-        print(i)
+        #print(i)
+        temp = [term_dict.get(n, n) for n in i.split()]
+        #a_lol.append([" ".join(i) for i in temp])
+        if b == 0:
+            a_lol.append(" ".join(temp))
+        if b == 1:
+            a_lol.append([" ".join(temp)])
+        #print(temp)
+        #print(a_lol)
+    return a_lol
+
+
+def eq_name_match(a, b, c):
+    """Matches names simply"""
+    index_count = 0
+    for i in a:
         indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
+        #print(indices_a)
         if indices_a:
-            indices_a.extend([b[indices_a[0]]])
+            indices_a.extend([c[indices_a[0]]])
         a[index_count].append(indices_a)
         index_count += 1
     return a
 
-def match_names(a , b, x = 0,y = 0):
+def match_names(a, b, c = 0, y = 0):
     """Take two lists and match on names"""
     a_s = set(a)
-    a_lol = [[i] for i in a] #turn a into list of lists to accumulate matching data from DSE to SEC
+    a_lol = remove_abbr(a,1)
+    b_lol = remove_abbr(b,0)
+    #for i in b_lol:
+        #print(i)
+    #print(len(b))
+    #print(len(b_lol))
+    #print([term_dict.get(n, n) for n in a])
+
+
+    #print(a_lol)
+    #a_lol = [[i] for i in a] #turn a into list of lists to accumulate matching data from DSE to SEC
+
     #b_rep = [i for i in b if ]
     #Look and replace abbraiviations
     #print(a_lol)
     index_count = 0
-    fm = eq_name_match(a_lol, b)
-
+    fm = eq_name_match(a_lol, b_lol, b)
+    #fm = eq_name_match(a_lol, b_lol)
     #indices_a = [i for i, item in enumerate(b) if item in a_s]
     print(fm)
-    for i in fm:
-        if not i[1]:
-            print(i)
+    #for i in fm:
+        #if not i[1]:
+            #print(i)
 
 
 def collapse_list(header, a, x, y):
