@@ -4,8 +4,8 @@ import os, csv, compfuncs
 os.chdir("C:/Users/Panqiao/Documents/Research/SS - All/SS")
 term = ['MFG', 'INTL', 'RLTY', 'LTD']
 term_o = ['MANUFACTURING', 'INTERNATIONAL', 'REALTY', 'LIMITED']
-term_dict = {'MFG':'MANUFACTURING', 'INTL':'INTERNATIONAL', 'RLTY':'REALTY','LTD':'LIMITED'}
-other = ['INC', 'CO', 'CORP']
+term_dict = {'MFG':'MANUFACTURING', 'INTL':'INTERNATIONAL', 'RLTY':'REALTY','LTD':'LIMITED', 'INDS':'INDUSTRIES'}
+other = ['INC', 'CO', 'CORP','OLD', 'COS']
 # O E A INC	OEA
 # I P M TECHNOLOGY INC IPM TECHNOLOGY INC
 
@@ -18,6 +18,7 @@ dse_path = "C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSENAMES.t
 dse_path_s = "C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSE_short.txt"
 sec_file_path = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
 sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/SEC_SHORT.txt"
+#sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
 dse_path_collapsed = 'C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSE_COLLAPSED.txt'
 #fhand_sec_online = open("C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt", encoding="utf8").splitlines()
 #fhand_CRSP_DSE = open("C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSENAMES_small.txt", encoding="utf8")
@@ -73,21 +74,23 @@ fhand_SEC = [x for x in csv.reader(open(sec_file_s,'r') , delimiter='\t')][1:]
 
 #Name variables_DSE
 DSE_NAME = [i[1] for i in fhand_DSE]
-DSE_TICKER = [i[3] for i in fhand_DSE]
-DSE_CUSIP = [i[2] for i in fhand_DSE]
-DSE_DATE_1 = [i[0] for i in fhand_DSE]
-DSE_DATE_2 = [i[5] for i in fhand_DSE]
-DSE_PERMNO = [i[4] for i in fhand_DSE]
-DSE_PERMCO = [i[6] for i in fhand_DSE]
+DSE_TICKER = [i[3] for i in fhand_DSE[0:3]]
+#DSE_CUSIP = [i[2] for i in fhand_DSE]
+#DSE_DATE_1 = [i[0] for i in fhand_DSE]
+#DSE_DATE_2 = [i[5] for i in fhand_DSE]
+#DSE_PERMNO = [i[4] for i in fhand_DSE]
+#DSE_PERMCO = [i[6] for i in fhand_DSE]
 
 #Name variables_SEC
 SEC_NAME = [i[7] for i in fhand_SEC]
 SEC_TICKER = [i[8] for i in fhand_SEC]
-SEC_CUSIP = [i[11] for i in fhand_SEC]
-SEC_FDATE = [i[4] for i in fhand_SEC]
-SEC_DDATE =[i[5] for i in fhand_SEC]
+#SEC_CUSIP = [i[11] for i in fhand_SEC]
+#SEC_FDATE = [i[4] for i in fhand_SEC]
+#SEC_DDATE =[i[5] for i in fhand_SEC]
 
-compfuncs.match_names(SEC_NAME, DSE_NAME)
+print(DSE_TICKER)
+
+compfuncs.match_names(SEC_NAME, DSE_NAME, fhand_SEC, fhand_DSE)
 
 #print(DSE_NAME)
 #print(DSE_TICKER)

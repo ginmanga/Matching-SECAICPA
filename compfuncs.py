@@ -11,18 +11,26 @@ def remove_abbr(a, b):
     # b = 0 return list
     # b = 1 return lsit of list
     a_lol = []
-    term_dict = {'MFG': 'MANUFACTURING', 'INTL': 'INTERNATIONAL', 'RLTY': 'REALTY', 'LTD': 'LIMITED'}
+    term_dict = {'MFG': 'MANUFACTURING', 'INTL': 'INTERNATIONAL', 'RLTY': 'REALTY', 'LTD': 'LIMITED',
+                 'INDS':'INDUSTRIES', 'CO.':'CO', 'CORPORATION':'CORP', 'COS':'COMPANIES', 'COMPANY':'CO'}
     for i in a:
-        #print(i)
         temp = [term_dict.get(n, n) for n in i.split()]
-        #a_lol.append([" ".join(i) for i in temp])
         if b == 0:
             a_lol.append(" ".join(temp))
         if b == 1:
             a_lol.append([" ".join(temp)])
-        #print(temp)
-        #print(a_lol)
     return a_lol
+
+
+def in_match(a):
+    """Takes a list and returns index of lists that are still unmatched"""
+    count = 0
+    indexes = []
+    for i in a:
+        if not i[1]:
+            indexes.append([count])
+        count += 1
+    return indexes
 
 
 def eq_name_match(a, b, c):
@@ -30,39 +38,71 @@ def eq_name_match(a, b, c):
     index_count = 0
     for i in a:
         indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
-        #print(indices_a)
         if indices_a:
             indices_a.extend([c[indices_a[0]]])
         a[index_count].append(indices_a)
         index_count += 1
     return a
 
-def match_names(a, b, c = 0, y = 0):
+
+def match_sec_cusip(a, b):
+    """Matching cusip"""
+    #a List of unmatched indexes with CUSIP
+    #b file handler for DSE
+    DSE_CUSIP = [i[2] for i in b]
+    #indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
+    for i in a:
+        if len(i[1]) == 9:
+            indices_a = [j for j, elem in enumerate(DSE_CUSIP) if elem == i[1][0:len(i[1])-1]]
+            #print(indices_a)
+        if len(i[1]) == 8:
+            if i[1][-1] != '0':
+                #print(i)
+                #print(i[1][0:7])
+                #print('0'+i[1][0:7])
+                indices_a = [j for j, elem in enumerate(DSE_CUSIP) if elem == '0'+i[1][0:len(i[1])-1]]
+                #print(indices_a )
+            if i[1][-1] == '0':
+                print(i)
+                indices_a = [j for j, elem in enumerate(DSE_CUSIP) if elem == i[1]]
+                print(indices_a )
+        if len(i[1]) == 7 and i[1]:
+            #print(i)
+            #print(i[1][-1])
+            if i[1][-1] != "1":
+                indices_a = [j for j, elem in enumerate(DSE_CUSIP) if elem[0:8] == '00'+i[1][0:len(i[1])-1]]
+                print(i)
+                #print(i[1][0:7])
+                print(indices_a)
+            if i[1][-1] == '1':
+                #print(i)
+                indices_a = [j for j, elem in enumerate(DSE_CUSIP) if elem == i[1]+'0']
+                #print(indices_a)
+    fc = 0
+    for i in DSE_CUSIP:
+        #print(i)
+        #if i[0:7] == '2942910':
+        if fc == 20529:
+            print(i)
+            print(i[0:7])
+        fc += 1
+
+
+def match_names(a, b, c, d):
     """Take two lists and match on names"""
     a_s = set(a)
-    a_lol = remove_abbr(a,1)
-    b_lol = remove_abbr(b,0)
-    #for i in b_lol:
-        #print(i)
-    #print(len(b))
-    #print(len(b_lol))
-    #print([term_dict.get(n, n) for n in a])
+    a_rab = remove_abbr(a,1)
+    b_rab = remove_abbr(b,0)
+    #fm = eq_name_match(a_rab, b_rab, b)
+    fmatch = eq_name_match(a_rab, b_rab, b) #initial name match
+    index_unmatch = in_match(fmatch) #returns index of unmantchec
+    print(fmatch)
+    print(index_unmatch)
+    index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
+    match_sec_cusip(index_unmatch_2, d)
 
 
-    #print(a_lol)
-    #a_lol = [[i] for i in a] #turn a into list of lists to accumulate matching data from DSE to SEC
-
-    #b_rep = [i for i in b if ]
-    #Look and replace abbraiviations
-    #print(a_lol)
-    index_count = 0
-    fm = eq_name_match(a_lol, b_lol, b)
-    #fm = eq_name_match(a_lol, b_lol)
-    #indices_a = [i for i, item in enumerate(b) if item in a_s]
-    print(fm)
-    #for i in fm:
-        #if not i[1]:
-            #print(i)
+    return None#in_match(fm)
 
 
 def collapse_list(header, a, x, y):
@@ -102,6 +142,7 @@ def collapse_list(header, a, x, y):
 
     return collapsed_list
 
+
 def prep_file(path):
     #reads text file and with header....
     reader = csv.reader(open(path, 'r'), delimiter='\t')
@@ -110,13 +151,15 @@ def prep_file(path):
     file_w_header.extend(a)
     return file_w_header
 
+
 def shorten_file(file):
     #shortens list
     short_list = []
-    for i in file[0:200]:
+    for i in file[0:500]:
         print(i)
         short_list.append(i)
     return short_list
+
 
 def write_file(path_file, filename, data, write_type):
     """Writes all data to file"""
