@@ -41,7 +41,7 @@ dse_path_collapsed = 'C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/
 #fhand_DSE.extend(a)
 
 #compfuncs.write_file(crsp_path, "DSE_SHORT.txt", compfuncs.shorten_file(compfuncs.prep_file(dse_path)),'w') ##FINAL SHORTENING
-#compfuncs.write_file(os.getcwd(), "SEC_SHORT.txt", compfuncs.shorten_file(compfuncs.prep_file(sec_file_path)),'w')
+#compfuncs.write_file(os.getcwd(), "SEC_SHORT.txt", compfuncs.shorten_file(compfuncs.prep_file(sec_file_path), 1000),'w')
 
 #variables:
 #0 - date
