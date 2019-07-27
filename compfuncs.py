@@ -15,7 +15,7 @@ def remove_abbr(a, b):
                  'INDS':'INDUSTRIES', 'CO.':'CO', 'CORPORATION':'CORP', 'COS':'COMPANIES', 'COMPANY':'CO',
                  'OF':'', 'ASSN':'ASSOCIATION', 'INVS':'INVESTORS', 'CONVERT':'CONVERTIBLE', 'GRW':'GROWTH',
                  'INCM':'INCOME', 'PPTYS':'PROPERTIES', 'MTG':'MORTGAGE', 'TR':'TRUST', 'INCORPORATED':'INC',
-                 'L.P.':'LP'}
+                 'L.P.':'LP', 'AMER':'AMERICA'}
     term_dict_2 = {'L P':'LP'}
 
     for x, i in enumerate(a):
@@ -92,10 +92,17 @@ def eq_name_match(a, b, c, d):
     """Matches names simply"""
     c = [[i] for i in c]
     index_count = 0
+    #elements = ['CO','LIMITED','LTD','CORP','INCORP','INC','FUND', 'DE', 'CA', 'DEL', 'OLD']
+    elements = {'CO', 'LIMITED', 'LTD', 'CORP', 'INCORP', 'INC', 'FUND', 'DE', 'CA', 'OKLA', 'ID'}
+    #for i in a:
+        #print(set(i))
+
     for i in a:
         indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
-
+        #indices_a = [j for j, elem in enumerate(b) if set(elem.split()) == set(i[0].split())]
         if not indices_a:
+            indices_a = []
+            #indices_a = [j for j, elem in enumerate(b) if set(elem.split()) == set(i[0].split())]
             #print(i)
             #print(set(i))
             #print(set(i[0]))
@@ -107,14 +114,23 @@ def eq_name_match(a, b, c, d):
                 #time.sleep(10)
                 x = set(elem.split())
                 y = set(i[0].split())
-                if x.issubset(y):
-                    print(i, elem)
-                    print(y.difference(x))
-                    if y.difference(x) == set():
-                        print("EMEPETY")
-                if y.issubset(x):
-                    print(i, elem)
-                    print(x.difference(y))
+                if x == y:
+                    #print("EQQQQALLLL")
+                    indices_a.append(j)
+                    #print(indices_a)
+                elif x.issubset(y):
+                    #print(x , y)
+                    #print("X is SUBEST of Y")
+                    #print(y.difference(x))
+                    if y.difference(x).issubset(elements):
+                        indices_a.append(j)
+                   # print(indices_a)
+                elif y.issubset(x):
+                    #print(x, y)
+                    #print("Y is SUBEST of X")
+                    #print(x.difference(y))
+                    if x.difference(y).issubset(elements):
+                        indices_a.append(j)
 
         if indices_a:
             indices_a.extend([d[indices_a[0]]])
@@ -189,13 +205,15 @@ def match_names(a, b, c, d):
     #for i in b_rab:
         #print(i)
     fmatch = eq_name_match(a_rab, b_rab, a, b) #initial name match returns list with same dimensions as SEC with DSE match
+    #for i in fmatch:
+        #print(i)
     index_unmatch = in_match(fmatch) #returns index of unmantchec
     index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
     fmatch_2 = match_sec_cusip(index_unmatch_2, d, fmatch) # returns new list matched by cusip
     index_unmatch = in_match(fmatch_2) #remaining unmatched after CUSIP
-    for i in fmatch_2:
-        if not i[1]:
-            print(i)
+    #for i in fmatch_2:
+        #if not i[1]:
+            #print(i)
     #second name match match by name when they do not exactly match
 
 

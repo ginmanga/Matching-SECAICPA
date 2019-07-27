@@ -20,6 +20,7 @@ sec_file_path = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.tx
 sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/SEC_SHORT.txt"
 #sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
 dse_path_collapsed = 'C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSE_COLLAPSED.txt'
+temps = "C:/Users/Panqiao/Documents/Research/SS - All/temps"
 #fhand_sec_online = open("C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt", encoding="utf8").splitlines()
 #fhand_CRSP_DSE = open("C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSENAMES_small.txt", encoding="utf8")
 #for i in fhand_sec_online:
