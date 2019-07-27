@@ -74,7 +74,7 @@ fhand_SEC = [x for x in csv.reader(open(sec_file_s,'r') , delimiter='\t')][1:]
 
 #Name variables_DSE
 DSE_NAME = [i[1] for i in fhand_DSE]
-DSE_TICKER = [i[3] for i in fhand_DSE[0:3]]
+#DSE_TICKER = [i[3] for i in fhand_DSE[0:3]]
 #DSE_CUSIP = [i[2] for i in fhand_DSE]
 #DSE_DATE_1 = [i[0] for i in fhand_DSE]
 #DSE_DATE_2 = [i[5] for i in fhand_DSE]
@@ -88,7 +88,7 @@ SEC_TICKER = [i[8] for i in fhand_SEC]
 #SEC_FDATE = [i[4] for i in fhand_SEC]
 #SEC_DDATE =[i[5] for i in fhand_SEC]
 
-print(DSE_TICKER)
+#print(DSE_TICKER)
 
 compfuncs.match_names(SEC_NAME, DSE_NAME, fhand_SEC, fhand_DSE)
 

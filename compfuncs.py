@@ -1,4 +1,4 @@
-import os, csv, copy
+import os, csv, copy, time
 
 
 def pe_list(a):
@@ -13,19 +13,30 @@ def remove_abbr(a, b):
     a_lol = []
     term_dict = {'MFG': 'MANUFACTURING', 'INTL': 'INTERNATIONAL', 'RLTY': 'REALTY', 'LTD': 'LIMITED',
                  'INDS':'INDUSTRIES', 'CO.':'CO', 'CORPORATION':'CORP', 'COS':'COMPANIES', 'COMPANY':'CO',
-                 'OF':''}
+                 'OF':'', 'ASSN':'ASSOCIATION', 'INVS':'INVESTORS', 'CONVERT':'CONVERTIBLE', 'GRW':'GROWTH',
+                 'INCM':'INCOME', 'PPTYS':'PROPERTIES', 'MTG':'MORTGAGE', 'TR':'TRUST', 'INCORPORATED':'INC',
+                 'L.P.':'LP'}
+    term_dict_2 = {'L P':'LP'}
+
+    for x, i in enumerate(a):
+        if i.find(' L P') != -1 and len(i) - 4 == i.find(' L P'):
+            a[x] = i.replace(" L P", " LP")
+
+
     for i in a:
         temp = [term_dict.get(n, n) for n in i.split()]
         try:
             temp.remove('')
         except:
             None
+        if temp[0] == "THE":
+            temp.remove("THE")
         if b == 0:
             a_lol.append(" ".join(temp))
         if b == 1:
-            #print(i)
-            #print(temp)
+            #for j in i:
             a_lol.append([" ".join(temp)])
+        #print(a[x])
     return a_lol
 
 
@@ -43,17 +54,75 @@ def in_match(a):
     return indexes
 
 
+def fix_dsenames(a):
+    """Fix DSE name like T I I to TII"""
+    # print(i)
+    # print(temp)
+    counter = 0
+    accumulator_total = [] #keeps track of index and name changes
+
+    for x, i in enumerate(a):
+        list_index = 0
+        list_index_a = []
+        accumulator = ""
+        f = i.split()
+        for j in f:
+            if len(j) == 1:
+                accumulator = accumulator + j
+                list_index_a.append(list_index)
+
+            if len(j) > 1 and len(list_index_a) > 1 and list_index_a[0] == 0: # When it is at start of Name
+
+                f = [v for y, v in enumerate(f) if y not in list_index_a]
+                accumulator_list = [accumulator]
+                accumulator_list.extend(f)
+                accumulator_total.append([x, " ".join(accumulator_list)])
+                list_index_a = []
+            if len(j) > 1 and len(list_index_a) > 1 and list_index_a[0] != 0: # When it is in the middle of Name
+                accumulator_list = [accumulator]
+                accumulator_list = f[0 : list_index_a[0]] + accumulator_list + f[list_index_a[-1]+1 : ]
+                accumulator_total.append([x, " ".join(accumulator_list)])
+                list_index_a = []
+            list_index += 1
+    for i in accumulator_total: # replace names with new names
+        a[i[0]] = i[1]
+    return a
+
 def eq_name_match(a, b, c, d):
     """Matches names simply"""
     c = [[i] for i in c]
     index_count = 0
     for i in a:
         indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
+
+        if not indices_a:
+            #print(i)
+            #print(set(i))
+            #print(set(i[0]))
+            #indices_a = [j for j, elem in enumerate(b) if set(elem) in set(i[0])]:
+            for j, elem in enumerate(b):
+                #print(elem.split())
+                #print(i[0].split())
+                #print(set(i[0].split()))
+                #time.sleep(10)
+                x = set(elem.split())
+                y = set(i[0].split())
+                if x.issubset(y):
+                    print(i, elem)
+                    print(y.difference(x))
+                    if y.difference(x) == set():
+                        print("EMEPETY")
+                if y.issubset(x):
+                    print(i, elem)
+                    print(x.difference(y))
+
         if indices_a:
             indices_a.extend([d[indices_a[0]]])
         c[index_count].append(indices_a)
         index_count += 1
     return c
+
+#def eq_name_match_2(a, b, c, d):
 
 
 def match_sec_cusip(a, b, c):
@@ -62,7 +131,6 @@ def match_sec_cusip(a, b, c):
     #b file handler for DSE
     #c fm master list SEC
     DSE_CUSIP = [i[2] for i in b]
-    #indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
     for i in a:
         indices_a = ""
         if len(i[1]) == 9:
@@ -109,22 +177,45 @@ def match_sec_cusip(a, b, c):
 
 def match_names(a, b, c, d):
     """Take two lists and match on names"""
+    #a SEC_NAME
+    #b DSE_NAME
+    #c fhand_SEC
+    #d fhand_DSE
     a_s = set(a)
-    a_rab = remove_abbr(a,1)
-    b_rab = remove_abbr(b,0)
-    #print(a)
-    #print(a_rab)
-    #fm = eq_name_match(a_rab, b_rab, b)
+    a_rab = fix_dsenames(a)
+    a_rab = remove_abbr(a_rab, 1)
+    b_rab = remove_abbr(b, 0)
+    b_rab = fix_dsenames(b_rab)
+    #for i in b_rab:
+        #print(i)
     fmatch = eq_name_match(a_rab, b_rab, a, b) #initial name match returns list with same dimensions as SEC with DSE match
     index_unmatch = in_match(fmatch) #returns index of unmantchec
     index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
-    print(fmatch)
-    #fmatch_post = copy.deepcopy(fmatch)
-    #x = match_sec_cusip(index_unmatch_2, d, fmatch_post)
-    x = match_sec_cusip(index_unmatch_2, d, fmatch)
-    print(x)
-    index_unmatch = in_match(x)
-    print(index_unmatch)
+    fmatch_2 = match_sec_cusip(index_unmatch_2, d, fmatch) # returns new list matched by cusip
+    index_unmatch = in_match(fmatch_2) #remaining unmatched after CUSIP
+    for i in fmatch_2:
+        if not i[1]:
+            print(i)
+    #second name match match by name when they do not exactly match
+
+
+    index_unmatch_2 = [i + [c[i[0]][8]] for i in index_unmatch]  #list of unmatched index + ticker
+
+
+    DSE_TICKER = [i[3] for i in d]
+
+    for i in index_unmatch_2:
+        indices_a = ""
+        indices_a = [j for j, elem in enumerate(DSE_TICKER) if elem == i[1]]
+        try:
+            indices_a.append(d[indices_a[0]][1])
+        except:
+            None
+        fmatch_2[i[0]][1].extend(indices_a)
+    #print(fmatch_2)
+    #print(fmatch_2[25])
+    #print(fmatch_2[36])
+    #print(index_unmatch)
 
     return None
 
