@@ -143,8 +143,8 @@ def match_sec_cusip(a, b, c):
                     indices_a.append(b[int(indices_a[0])][1])
                 except:
                     None
-                if i[1][-1] == '0':
-                    indices_a = [str(j) for j, elem in enumerate(DSE_CUSIP) if elem == i[1]]
+            if i[1][-1] == '0':
+                indices_a = [str(j) for j, elem in enumerate(DSE_CUSIP) if elem == i[1]]
                 try:
                     indices_a.append(b[int(indices_a[0])][1])
                 except:
@@ -152,22 +152,22 @@ def match_sec_cusip(a, b, c):
         if len(i[1]) == 7 and i[1]:
             if i[1][-1] not in ["0", "1"]:
                 indices_a = [str(j) for j, elem in enumerate(DSE_CUSIP) if elem[0:8] == '00'+i[1][0:len(i[1])-1]]
-            try:
-                indices_a.append(b[int(indices_a[0])][1])
-            except:
-                None
+                try:
+                    indices_a.append(b[int(indices_a[0])][1])
+                except:
+                    None
             if i[1][-1] == '1':
                 indices_a = [str(j) for j, elem in enumerate(DSE_CUSIP) if elem == i[1]+'0']
-            try:
-                indices_a.append(b[int(indices_a[0])][1])
-            except:
-                None
+                try:
+                    indices_a.append(b[int(indices_a[0])][1])
+                except:
+                    None
             if i[1][-1] == '0':
                 indices_a = [str(j) for j, elem in enumerate(DSE_CUSIP) if elem == '0'+i[1]]
-            try:
-                indices_a.append(b[int(indices_a[0])][1])
-            except:
-                None
+                try:
+                    indices_a.append(b[int(indices_a[0])][1])
+                except:
+                    None
         c[i[0]][1].extend(indices_a)
     return c
 
@@ -185,6 +185,7 @@ def match_names(a, b, c, d):
     b_rab = fix_dsenames(b_rab)
     #for i in b_rab:
         #print(i)
+    fmatch = 
     fmatch = eq_name_match(a_rab, b_rab, a, b) #initial name match returns list with same dimensions as SEC with DSE match
     #fmatch = eq_name_match(a_rab, b_rab, a, b, options = 1)
     #for i in fmatch:
@@ -202,10 +203,11 @@ def match_names(a, b, c, d):
    #print(index_unmatch)
     index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
     fmatch_2 = match_sec_cusip(index_unmatch_2, d, fmatch) # returns new list matched by cusip
+    print(index_unmatch_2)
     #index_unmatch = in_match(fmatch_2) #remaining unmatched after CUSIP
     index_c = 0
-    for i in index_unmatch:
-        print(fmatch[i[0]])
+    #for i in index_unmatch:
+        #print(fmatch[i[0]])
         #if not fmatch[index_c][1]:
             #print(fmatch[index_c],i)
         #index_c += 1
