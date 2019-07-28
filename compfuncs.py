@@ -40,17 +40,25 @@ def remove_abbr(a, b):
     return a_lol
 
 
-def in_match(a):
+def in_match(a, options = 0):
     """Takes a list and returns index of lists that are still unmatched"""
     count = 0
     count_un = 0
     indexes = []
-    for i in a:
-        if not i[1]:
-            indexes.append([count])
-            count_un += 1
-        count += 1
-    print("Unmatched", count_un)
+    #for i in a:
+        #if not i[1]:
+            #indexes.append([count])
+            #count_un += 1
+        #count += 1
+    #index_2 = [i,]
+    if options == 0:
+        indexes = [[j] for j, elem in enumerate(a) if elem[1] == []]
+        print("Unmatched", len(indexes))
+    if options == 1:
+        indexes = [[j] for j, elem in enumerate(a) if elem[1] != []]
+        print("Matched", len(indexes))
+    #print(indices_a)
+
     return indexes
 
 
@@ -88,6 +96,7 @@ def fix_dsenames(a):
         a[i[0]] = i[1]
     return a
 
+
 def eq_name_match(a, b, c, d, options = 0):
     """Matches names simply"""
     c = [[i] for i in c]
@@ -119,8 +128,61 @@ def eq_name_match(a, b, c, d, options = 0):
         index_count += 1
     return c
 
-#def eq_name_match_2(a, b, c, d):
 
+def eq_name_match_N(a, b, c, d, options = 0):
+    """Matches names simply"""
+    #c = [[i] for i in c]
+    index_count = 0
+    #elements = ['CO','LIMITED','LTD','CORP','INCORP','INC','FUND', 'DE', 'CA', 'DEL', 'OLD']
+    elements = {'CO', 'LIMITED', 'LTD', 'CORP', 'INCORP', 'INC', 'FUND', 'DE', 'CA', 'OKLA', 'ID'} # elements to discard when matching sets
+
+    for i in a:
+        #indices_a = [j for j, elem in enumerate(b) if elem == i[0]]
+        #print(i)
+        indices_a = [str(j) for j, elem in enumerate(b) if elem == i[1]]
+        #indices_a = [j for j, elem in enumerate(b) if set(elem.split()) == set(i[0].split())]
+        if not indices_a and options == 1:
+            indices_a = []
+            for j, elem in enumerate(b):
+
+                x = set(elem.split())
+                y = set(i[1].split())
+                if x == y:
+                    indices_a.append(str(j))
+                elif x.issubset(y):
+                    if y.difference(x).issubset(elements):
+                        indices_a.append(str(j))
+                elif y.issubset(x):
+                    if x.difference(y).issubset(elements):
+                        indices_a.append(str(j))
+        if indices_a:
+            indices_a.extend([d[int(indices_a[0])]])
+        #print(c[i[0]])
+        c[i[0]][1].extend(indices_a)
+        #print(c[i[0]])
+        #c[index_count].append(indices_a)
+        index_count += 1
+    return c
+
+def eq_name_match_2(a, b, c):
+    #a unmatched index and name
+    #b matched index and name
+    #c fmatched
+    count_a = 0
+    count_found = 0
+    for i in a:
+        count_b = 0
+        for j in b:
+            if i[1] == j[1]:
+                count_found += 1
+                print("found one")
+                print("This is number:", count_found ,"we have found using this method")
+                print(c[count_a])
+                print(c[count_b])
+                c[count_a][1] = c[count_b][1]
+                break
+    print("Total found using the second name method is", count_found)
+    return c
 
 def match_sec_cusip(a, b, c):
     """Matching cusip"""
@@ -172,6 +234,13 @@ def match_sec_cusip(a, b, c):
     return c
 
 
+def fix_names(a, options = 0):
+    """Takes a list of names and returns modficied list abbreviations and other problems"""
+    #calls remove_abbr and fix_dsenames
+    if options == 0:
+        a = fix_dsenames(a)
+        a = remove_abbr(a_rab, 1)
+
 def match_names(a, b, c, d):
     """Take two lists and match on names"""
     #a SEC_NAME
@@ -183,10 +252,49 @@ def match_names(a, b, c, d):
     a_rab = remove_abbr(a_rab, 1)
     b_rab = remove_abbr(b, 0)
     b_rab = fix_dsenames(b_rab)
-    #for i in b_rab:
-        #print(i)
-    fmatch = 
-    fmatch = eq_name_match(a_rab, b_rab, a, b) #initial name match returns list with same dimensions as SEC with DSE match
+
+    fmatch = [[i,[]] for i in a]
+    index_unmatch = [i + [c[i[0]][11]] for i in in_match(fmatch)] #adds cusip
+    fmatch = match_sec_cusip(index_unmatch, d, fmatch) #match by cusip
+    print("Writting temp 1")
+    f_match_save = [[i[0]] + i[1] for i in fmatch] # prepare file for writting
+    write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp1.txt", f_match_save, 'w')
+
+    index_unmatch = [i + [c[i[0]][7]] for i in in_match(fmatch)]
+    index_unmatch = [i + a_rab[i[0]] for i in in_match(fmatch)] # get names of unmatched
+    fmatch = eq_name_match_N(index_unmatch, b_rab, fmatch, b, options = 1) #match by name
+    f_match_save = [[i[0]] + i[1] for i in fmatch]
+
+    print("Writting temp 2")
+    write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp2.txt", f_match_save, 'w')
+
+    index_unmatch = in_match(fmatch)
+    index_match = in_match(fmatch, options = 1)
+    index_unmatch = [i + a_rab[i[0]] for i in in_match(fmatch)]  # get names of unmatched
+    fmatch = eq_name_match_2(index_unmatch, index_match, fmatch)
+    f_match_save = [[i[0]] + i[1] for i in fmatch]
+    print("Writting temp 3")
+    write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp2.txt", f_match_save, 'w')
+
+    #before ticker, use prematched names to try to match unmatched ones
+
+
+
+    #index_unmatch_2 = [i + [c[i[0]][8]] for i in index_unmatch]  #list of unmatched index + ticker
+    #DSE_TICKER = [i[3] for i in d]
+
+    #for i in index_unmatch_2:
+        #indices_a = ""
+        #indices_a = [j for j, elem in enumerate(DSE_TICKER) if elem == i[1]]
+        #try:
+            #indices_a.append(d[indices_a[0]][1])
+        #except:
+            #None
+        #fmatch_2[i[0]][1].extend(indices_a)
+
+
+    #fmatch = eq_name_match(a_rab, b_rab, a, b) #initial name match returns list with same dimensions as SEC with DSE match
+    #print(fmatch)
     #fmatch = eq_name_match(a_rab, b_rab, a, b, options = 1)
     #for i in fmatch:
         #if not i[1]:
@@ -199,13 +307,13 @@ def match_names(a, b, c, d):
         #print(i)
     ##write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "first_match.txt", f_match_save, 'w')
 
-    index_unmatch = in_match(fmatch) #returns index of unmantchec
+    #index_unmatch = in_match(fmatch) #returns index of unmantchec
    #print(index_unmatch)
-    index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
-    fmatch_2 = match_sec_cusip(index_unmatch_2, d, fmatch) # returns new list matched by cusip
-    print(index_unmatch_2)
+    #index_unmatch_2 = [i+[c[i[0]][11]] for i in index_unmatch] #list of unmatched index + cusip
+    #fmatch_2 = match_sec_cusip(index_unmatch_2, d, fmatch) # returns new list matched by cusip
+    #print(index_unmatch_2)
     #index_unmatch = in_match(fmatch_2) #remaining unmatched after CUSIP
-    index_c = 0
+    #index_c = 0
     #for i in index_unmatch:
         #print(fmatch[i[0]])
         #if not fmatch[index_c][1]:
@@ -214,20 +322,20 @@ def match_names(a, b, c, d):
         #if not i[1]:
             #print(i)
     #second name match match by name when they do not exactly match
-    f_match_save = [[i[0]] + i[1] for i in fmatch_2]
+    #f_match_save = [[i[0]] + i[1] for i in fmatch_2]
     #write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "match_set+cusip.txt", f_match_save, 'w')
 
-    index_unmatch_2 = [i + [c[i[0]][8]] for i in index_unmatch]  #list of unmatched index + ticker
-    DSE_TICKER = [i[3] for i in d]
+    #index_unmatch_2 = [i + [c[i[0]][8]] for i in index_unmatch]  #list of unmatched index + ticker
+    #DSE_TICKER = [i[3] for i in d]
 
-    for i in index_unmatch_2:
-        indices_a = ""
-        indices_a = [j for j, elem in enumerate(DSE_TICKER) if elem == i[1]]
-        try:
-            indices_a.append(d[indices_a[0]][1])
-        except:
-            None
-        fmatch_2[i[0]][1].extend(indices_a)
+    #for i in index_unmatch_2:
+        #indices_a = ""
+        #indices_a = [j for j, elem in enumerate(DSE_TICKER) if elem == i[1]]
+        #try:
+            #indices_a.append(d[indices_a[0]][1])
+        #except:
+            #None
+        #fmatch_2[i[0]][1].extend(indices_a)
     #print(fmatch_2)
     #print(fmatch_2[25])
     #print(fmatch_2[36])
