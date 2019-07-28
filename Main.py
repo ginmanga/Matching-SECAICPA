@@ -18,7 +18,7 @@ dse_path = "C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSENAMES.t
 dse_path_s = "C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSE_short.txt"
 sec_file_path = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
 sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/SEC_SHORT.txt"
-#sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
+sec_file_s = "C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt"
 dse_path_collapsed = 'C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/DSE_COLLAPSED.txt'
 temps = "C:/Users/Panqiao/Documents/Research/SS - All/temps"
 #fhand_sec_online = open("C:/Users/Panqiao/Documents/Research/SS - All/SS/id_file_data.txt", encoding="utf8").splitlines()
