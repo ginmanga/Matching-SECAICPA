@@ -13,15 +13,19 @@ def remove_abbr(a, b):
     a_lol = []
     term_dict = {'MFG': 'MANUFACTURING', 'INTL': 'INTERNATIONAL', 'RLTY': 'REALTY', 'LTD': 'LIMITED',
                  'INDS':'INDUSTRIES', 'CO.':'CO', 'CORPORATION':'CORP', 'COS':'COMPANIES', 'COMPANY':'CO',
-                 'OF':'', 'ASSN':'ASSOCIATION', 'ASSOC':'ASSOCIATION', 'INVS':'INVESTORS', 'CONVERT':'CONVERTIBLE', 'GRW':'GROWTH',
-                 'INCM':'INCOME', 'PPTYS':'PROPERTIES', 'MTG':'MORTGAGE', 'TR':'TRUST', 'INCORPORATED':'INC',
-                 'L.P.':'LP', 'AMER':'AMERICA', 'BRDRS':'BREEDERS', 'MGMT': 'MANAGEMENT'}
+                 'OF':'', 'ASSN':'ASSOCIATION', 'ASSOC':'ASSOCIATION', 'INVS':'INVESTORS', 'CONVERT':'CONVERTIBLE',
+                 'GRW':'GROWTH', 'INCM':'INCOME', 'PPTYS':'PROPERTIES', 'MTG':'MORTGAGE', 'TR':'TRUST',
+                 'INCORPORATED':'INC', 'L.P.':'LP', 'AMER':'AMERICA', 'BRDRS':'BREEDERS', 'MGMT': 'MANAGEMENT',
+                 'SECS':'SECURITIES', 'ELECTRS':'ELECTRONICS', 'SVCS':'SERVICES', 'TECHS':'TECHNOLOGIES',
+                 'ELEC':'ELECTRIC', 'COMPNTS':'COMPONENTS', 'U.S.':'UNITED STATES','US':'UNITED STATES',
+                 'TRANSN':'TRANSPORTATION', 'UTILS':'UTILITIES', 'SHS':'SHARES', 'CONV':'CONVERTIBLE',
+                 'LABS':'LABORATORIES', 'DEV':'DEVELOPMENT', 'SYS':'SYSTEMS', 'TOB':'TOBACCO', 'CHEM':'CHEMICAL',
+                 'HECK S':'HECKS', 'EQUIP':'EQUIPMENT', 'WIS':'WISCONSIN', ',':'', '.':''}
     term_dict_2 = {'L P':'LP'}
 
     for x, i in enumerate(a):
         if i.find(' L P') != -1 and len(i) - 4 == i.find(' L P'):
             a[x] = i.replace(" L P", " LP")
-
 
     for i in a:
         temp = [term_dict.get(n, n) for n in i.split()]
@@ -124,7 +128,7 @@ def eq_name_match(a, b, c, d, options = 0):
 def eq_name_match_N(a, b, c, d, options = 0):
     """Matches names simply"""
     index_count = 0
-    elements = {'CO', 'LIMITED', 'LTD', 'CORP', 'INCORP', 'INC', 'FUND', 'DE', 'CA', 'OKLA', 'ID'} # elements to discard when matching sets
+    elements = {'CO', 'LIMITED', 'LTD', 'CORP', 'INCORP', 'INC', 'FUND', 'DE', 'CA', 'OKLA', 'ID', 'LP', '&'} # elements to discard when matching sets
     for i in a:
         indices_a = [str(j) for j, elem in enumerate(b) if elem == i[1]]
         if not indices_a and options == 1:
@@ -321,6 +325,10 @@ def match_names(a, b, c, d):
     fmatch = run_match_1(a, c, d, options=1)
     fmatch, a_rab = run_match_2(a, b, fmatch, options=1)
     fmatch = run_match_self(a_rab, fmatch, options=1)
+
+    index_unmatch = [i + a_rab[i[0]] for i in in_match(fmatch)]
+    for i in index_unmatch:
+        print(i)
 
     #Now match by ticker
 
