@@ -322,13 +322,45 @@ def match_names(a, b, c, d):
     #f_match_save = [[i[0]] + i[1] for i in fmatch] # prepare file for writting
     #write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp1.txt", f_match_save, 'w')
 
-    fmatch = run_match_1(a, c, d, options=1)
-    fmatch, a_rab = run_match_2(a, b, fmatch, options=1)
+    #fmatch = run_match_1(a, c, d, options=1)
+    #fmatch, a_rab = run_match_2(a, b, fmatch, options=1)
+    fmatch = [[i, []] for i in a]
+    a_rab = fix_names(a)
     fmatch = run_match_self(a_rab, fmatch, options=1)
+    #take matched and get permno and permco
+    #figure out what to do when mroe than one match
+    #in_match(b, options=1)]
+    DSE_TICKER = [i[3] for i in d]
+    DSE_DATE_1 = [i[0] for i in d]
+    DSE_DATE_2 = [i[5] for i in d]
+    DSE_PERMNO = [i[4] for i in d]
+    DSE_PERMCO = [i[6] for i in d]
+    SEC_FDATE = [i[4] for i in c]
+    SEC_DDATE =[i[5] for i in c]
+    #SEC_FDATE = [i[4].split("/")[2] + i[4].split("/")[0] + i[4].split("/")[1] for i in c]
+    for i, j in enumerate(fmatch):
 
-    index_unmatch = [i + a_rab[i[0]] for i in in_match(fmatch)]
-    for i in index_unmatch:
-        print(i)
+        if j[1] and len(j[1]) > 2:
+            print(j)
+            for x in range(len(j[1])-1):
+                print(SEC_FDATE[i], SEC_DDATE[i], b[int(j[1][x])],
+                      DSE_PERMNO[int(j[1][x])], DSE_PERMCO[int(j[1][x])],
+                      DSE_DATE_1[int(j[1][x])], DSE_DATE_2[int(j[1][x])])
+
+        if j[1] and len(j[1]) == 2:
+            #print(j[1])
+            #print([DSE_PERMNO[int(j[1][0])]])
+            j[1].extend([DSE_PERMNO[int(j[1][0])]])
+            j[1].extend([DSE_PERMCO[int(j[1][0])]])
+            j[1].extend([DSE_DATE_1[int(j[1][0])]])
+            j[1].extend([DSE_DATE_2[int(j[1][0])]])
+
+
+    #print(fmatch)
+    #Index DSE, Name DSE, PERMCO, PERMNO, DATE_1, DATE_2
+    #index_unmatch = [i + a_rab[i[0]] for i in in_match(fmatch)]
+    #for i in index_unmatch:
+        #print(i)
 
     #Now match by ticker
 
