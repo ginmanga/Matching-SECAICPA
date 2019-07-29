@@ -1,6 +1,21 @@
 import os, csv
 
 
+def conv_dates(a):
+    """Convert from MM/DD/YYYY to YYYYMMDD"""
+    a = [i.split('/') for i in a]
+    for x, i in enumerate(a):
+        if all(len(j) >= 2 for j in i):
+            a[x] = i[2]+i[0]+i[1]
+        elif len(i[0]) == 1 and len(i[1]) == 1:
+            a[x] = i[2] + '0' + i[0] + '0' + i[1]
+        elif len(i[0]) == 2 and len(i[1]) == 1:
+            a[x] = i[2] + i[0] + '0' + i[1]
+        elif len(i[0]) == 1 and len(i[1]) == 2:
+            a[x] = i[2] + '0' + i[0] + i[1]
+    return a
+
+
 def collapse_list(header, a, x, y):
     #a list to collapse
     #x group of variables used to collapase, indexes

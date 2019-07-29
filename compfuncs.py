@@ -1,4 +1,4 @@
-import os, csv, copy, time
+import os, csv, copy, time, file_prep_funcs
 
 
 def pe_list(a):
@@ -335,9 +335,32 @@ def match_names(a, b, c, d):
     DSE_DATE_2 = [i[5] for i in d]
     DSE_PERMNO = [i[4] for i in d]
     DSE_PERMCO = [i[6] for i in d]
-    SEC_FDATE = [i[4] for i in c]
-    SEC_DDATE =[i[5] for i in c]
+    SEC_FDATE =  file_prep_funcs.conv_dates([i[4] for i in c])
+    SEC_DDATE = file_prep_funcs.conv_dates([i[5] for i in c])
+
+    #SEC_FDATE = [i[4].split('/') for i in c]
+    #SEC_DDATE =[i[5].split('/') for i in c]
     #SEC_FDATE = [i[4].split("/")[2] + i[4].split("/")[0] + i[4].split("/")[1] for i in c]
+    #for x, i in enumerate(SEC_FDATE):
+        #if all(len(j) >= 2 for j in i):
+            #SEC_FDATE[x] = i[2]+i[0]+i[1]
+        #elif len(i[0]) == 1 and len(i[1]) == 1:
+            #SEC_FDATE[x] = i[2] + '0' + i[0] + '0' + i[1]
+       # elif len(i[0]) == 2 and len(i[1]) == 1:
+            #SEC_FDATE[x] = i[2] + i[0] + '0' + i[1]
+       # elif len(i[0]) == 1 and len(i[1]) == 2:
+           # SEC_FDATE[x] = i[2] + '0' + i[0] + i[1]
+
+    #for x, i in enumerate(SEC_DDATE):
+            #if all(len(j) >= 2 for j in i):
+                #SEC_DDATE[x] = i[2] + i[0] + i[1]
+            #elif len(i[0]) == 1 and len(i[1]) == 1:
+                #SEC_DDATE[x] = i[2] + '0' + i[0] + '0' + i[1]
+            #elif len(i[0]) == 2 and len(i[1]) == 1:
+                #SEC_DDATE[x] = i[2] + i[0] + '0' + i[1]
+            #elif len(i[0]) == 1 and len(i[1]) == 2:
+                #SEC_DDATE[x] = i[2] + '0' + i[0] + i[1]
+
     for i, j in enumerate(fmatch):
 
         if j[1] and len(j[1]) > 2:
