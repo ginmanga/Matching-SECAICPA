@@ -171,6 +171,7 @@ def eq_name_match_2(a, b, c):
     print("Total found using the second name method is", count_found)
     return c
 
+
 def match_sec_cusip(a, b, c):
     """Matching cusip"""
     #a List of unmatched indexes with CUSIP
@@ -304,6 +305,96 @@ def run_match_self(a, b, options=0):
     return fmatch
 
 
+def finalize_sec(a, b, c, options = 0):
+    #a SEC_HANDLES
+    #b DSE_HANDLE
+    #c fmatch
+    names_var = ['path', 'doc_type', 'filing_type', 'filing_type_a', 'filing_date',
+                'document_date','incorp','exchange', 'conm',
+                 'permno','permco','ticker','s_date','e_date']
+    if options == 0:
+    DSE_TICKER = [i[3] for i in b]
+    DSE_DATE_1 = [i[0] for i in b]
+    DSE_DATE_2 = [i[5] for i in b]
+    DSE_PERMNO = [i[4] for i in b]
+    DSE_PERMCO = [i[6] for i in b]
+    SEC_FDATE = file_prep_funcs.conv_dates([i[4] for i in a])
+    SEC_DDATE = file_prep_funcs.conv_dates([i[5] for i in a])
+
+    SEC_PATH = [i[0] for i in a]
+    SEC_DOC_TYPE = [i[1] for i in a]
+    SEC_FILE_TYPE = [i[2] for i in a]
+    SEC_FILE_TYPE_a = [i[3] for i in a]
+    SEC_INCORP = [i[10] for i in a]
+    SEC_EXCH = [i[9] for i in a]
+
+    for i, j in enumerate(c):
+        j[0] = [SEC_PATH[i], SEC_DOC_TYPE[i], SEC_FILE_TYPE[i], SEC_FILE_TYPE_a[i],
+                SEC_FDATE[i], SEC_DDATE[i], SEC_INCORP[i], SEC_EXCH[i], j[0]]
+        if j[1] and len(j[1]) > 2:
+            #j[0] = [SEC_PATH[i], SEC_DOC_TYPE[i], SEC_FILE_TYPE[i], SEC_FILE_TYPE_a[i],
+                    #SEC_FDATE[i], SEC_DDATE[i], SEC_INCORP[i], SEC_EXCH[i], j[0]]
+            temp = []
+            count_true = 0
+            temp_true = []
+            temp_false = []
+            for x in range(len(j[1])-1): # check if SEC fdate within CRSP Beging and endates
+                temp_1 =[SEC_FDATE[i] >= DSE_DATE_1[int(j[1][x])], SEC_FDATE[i] <= DSE_DATE_2[int(j[1][x])]]
+                temp_2 = [DSE_DATE_1[int(j[1][x])], DSE_DATE_2[int(j[1][x])]]
+                temp.append(temp_2)
+                if temp_1 == [True, True]:
+                    temp_true.append(x)
+                    count_true += 1
+                else:
+                    temp_false.append(x)
+            if count_true == 0:
+                #SO FEW HANDLE LATER
+                temp_permco = []
+                for item in temp_false:
+                    #print(b[int(j[1][item])])
+                    temp_permco.append(b[int(j[1][item])][6])
+                if len(set(temp_permco)) == 1:
+                    #print(j)
+                    j[1] = [str(list(set(temp_permco))[0]),DSE_DATE_1[int(j[1][0])], DSE_DATE_2[int(j[1][0])],
+                            DSE_PERMNO[int(j[1][0])]]
+                if len(set(temp_permco)) > 1:
+                    j[1] = ["PMCRSP","", "", ""]
+            if count_true > 1:
+                temp_permco = []
+                for item in temp_true:
+                    temp_permco.append(b[int(j[1][item])][6])
+                if len(set(temp_permco)) == 1:
+                    j[1] = [str(list(set(temp_permco))[0]),DSE_DATE_1[int(j[1][0])], DSE_DATE_2[int(j[1][0])],
+                            DSE_PERMNO[int(j[1][0])]]
+                if len(set(temp_permco)) > 1:
+                    for item in temp_true:
+                        temp_permco.append(b[int(j[1][item])][6])
+            if count_true == 1:
+                q = temp_true[0]
+                j[1] = [DSE_PERMCO[int(j[1][0])], DSE_DATE_1[int(j[1][0])], DSE_DATE_2[int(j[1][0])],
+                        DSE_PERMNO[int(j[1][0])]]
+        if j[1] and len(j[1]) == 2:
+            j[1] = [DSE_PERMCO[int(j[1][0])], DSE_DATE_1[int(j[1][0])], DSE_DATE_2[int(j[1][0])], DSE_PERMNO[int(j[1][0])]]
+        if not j[1]:
+            None
+        fmatch = c
+        f_match_save = [[i[0]] + i[1] for i in c]
+        print("Writting temp 4")
+        write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp4.txt", f_match_save, 'w')
+
+    if options == 1:
+        fmatch_reader = [x for x in csv.reader(open("C:/Users/Panqiao/Documents/Research/SS - All/temps/temp4.txt", 'r'), delimiter='\t')]
+        fmatch = []
+        for i in fmatch_reader:
+            fmatch.append([i[0],i[1:len(i)]])
+
+    return fmatch
+
+    #for i in c:
+        #print(i)
+
+
+
 
 def match_names(a, b, c, d):
     """Take two lists and match on names"""
@@ -327,16 +418,14 @@ def match_names(a, b, c, d):
     fmatch = [[i, []] for i in a]
     a_rab = fix_names(a)
     fmatch = run_match_self(a_rab, fmatch, options=1)
+    fmatch = finalize_sec(c, d, fmatch) #to print and match with gvkey
+    for i in fmatch:
+        print(i)
     #take matched and get permno and permco
     #figure out what to do when mroe than one match
     #in_match(b, options=1)]
-    DSE_TICKER = [i[3] for i in d]
-    DSE_DATE_1 = [i[0] for i in d]
-    DSE_DATE_2 = [i[5] for i in d]
-    DSE_PERMNO = [i[4] for i in d]
-    DSE_PERMCO = [i[6] for i in d]
-    SEC_FDATE =  file_prep_funcs.conv_dates([i[4] for i in c])
-    SEC_DDATE = file_prep_funcs.conv_dates([i[5] for i in c])
+
+
 
     #SEC_FDATE = [i[4].split('/') for i in c]
     #SEC_DDATE =[i[5].split('/') for i in c]
@@ -361,22 +450,22 @@ def match_names(a, b, c, d):
             #elif len(i[0]) == 1 and len(i[1]) == 2:
                 #SEC_DDATE[x] = i[2] + '0' + i[0] + i[1]
 
-    for i, j in enumerate(fmatch):
+    #for i, j in enumerate(fmatch):
 
-        if j[1] and len(j[1]) > 2:
-            print(j)
-            for x in range(len(j[1])-1):
-                print(SEC_FDATE[i], SEC_DDATE[i], b[int(j[1][x])],
-                      DSE_PERMNO[int(j[1][x])], DSE_PERMCO[int(j[1][x])],
-                      DSE_DATE_1[int(j[1][x])], DSE_DATE_2[int(j[1][x])])
+        #if j[1] and len(j[1]) > 2:
+            #print(j)
+            #for x in range(len(j[1])-1):
+                #print(SEC_FDATE[i], SEC_DDATE[i], b[int(j[1][x])],
+                      #DSE_PERMNO[int(j[1][x])], DSE_PERMCO[int(j[1][x])],
+                      #DSE_DATE_1[int(j[1][x])], DSE_DATE_2[int(j[1][x])])
 
-        if j[1] and len(j[1]) == 2:
+       # if j[1] and len(j[1]) == 2:
             #print(j[1])
             #print([DSE_PERMNO[int(j[1][0])]])
-            j[1].extend([DSE_PERMNO[int(j[1][0])]])
-            j[1].extend([DSE_PERMCO[int(j[1][0])]])
-            j[1].extend([DSE_DATE_1[int(j[1][0])]])
-            j[1].extend([DSE_DATE_2[int(j[1][0])]])
+           # j[1].extend([DSE_PERMNO[int(j[1][0])]])
+           # j[1].extend([DSE_PERMCO[int(j[1][0])]])
+           # j[1].extend([DSE_DATE_1[int(j[1][0])]])
+          #  j[1].extend([DSE_DATE_2[int(j[1][0])]])
 
 
     #print(fmatch)
