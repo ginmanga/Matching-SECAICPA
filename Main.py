@@ -91,20 +91,5 @@ SEC_TICKER = [i[8] for i in fhand_SEC]
 
 #print(DSE_TICKER)
 
-compfuncs.match_names(SEC_NAME, DSE_NAME, fhand_SEC, fhand_DSE)
+#compfuncs.match_names(SEC_NAME, DSE_NAME, fhand_SEC, fhand_DSE)
 
-#print(DSE_NAME)
-#print(DSE_TICKER)
-#print(DSE_CUSIP)
-#print(DSE_DATE_1)
-#print(DSE_DATE_2)
-#print(DSE_PERMNO)
-#print(DSE_PERMCO)
-#print(SEC_NAME)
-#print(SEC_TICKER)
-#print(SEC_CUSIP)
-#print(SEC_FDATE)
-#print(SEC_DDATE)
-
-#for i in SEC_CUSIP:
-    #print(len(i))

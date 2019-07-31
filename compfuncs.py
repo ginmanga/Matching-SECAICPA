@@ -414,38 +414,19 @@ def sort_return(a, b = 1):
         if len(counter_permno) == 0:
             counter_permno.append(i[0:2])
             counter_permno_gvkey.extend([i[2]])
-            #print(counter_permno)
-            #print(counter_permno_gvkey)
             continue
         if len(counter_permno) > 0:
-            #print(counter_permno)
             if counter_permno[-1][1] == i[1]:
                 counter_permno.append(i[0:2])
                 counter_permno_gvkey.append(i[2])
-            #print(counter_permno)
             if counter_permno[-1][1] != i[1]:
-                #print(counter_permno[-1][1])
-                #print(i[1])
-                #print("Different permnos")
-                #print(counter_permno)
-                #print("LIST OF GVKEYS")
-                #print(counter_permno_gvkey)
-                #print(i)
-
                 if len(list(set(counter_permno_gvkey))) == 1:
-                    #print("Only one gvkey")
                     permno_gvkey_dict.update({counter_permno[0][1]: counter_permno_gvkey[0]})
-
                 if len(list(set(counter_permno_gvkey))) > 1:
-                    #print("more than one gvkey")
                     indx = [x[0] for x in counter_permno]
                     list_for_dic.update({counter_permno[0][1]: indx})
-                #permno_gvkey_dict.update()
-                #print(list_for_dic)
-                #print(permno_gvkey_dict)
                 counter_permno = [i[0:2]]
                 counter_permno_gvkey = [i[2]]
-        #time.sleep(5)
     return list_for_dic, permno_gvkey_dict
 
 
@@ -462,25 +443,16 @@ def match_names(a, b, c, d):
     #a_rab = fix_names(a)
     #b_rab = fix_names(b, options=1)
 
-    #fmatch = [[i,[]] for i in a]
-    #index_unmatch = [i + [c[i[0]][11]] for i in in_match(fmatch)] #adds cusip
-    #fmatch = match_sec_cusip(index_unmatch, d, fmatch) #match by cusip
-    #print("Writting temp 1")
-    #f_match_save = [[i[0]] + i[1] for i in fmatch] # prepare file for writting
-    #write_file("C:/Users/Panqiao/Documents/Research/SS - All/temps", "temp1.txt", f_match_save, 'w')
 
+    #FUNCTIONS TO RUN
     #fmatch = run_match_1(a, c, d, options=1)
     #fmatch, a_rab = run_match_2(a, b, fmatch, options=1)
     #fmatch = [[i, []] for i in a]
     #a_rab = fix_names(a)
     #fmatch = run_match_self(a_rab, fmatch, options=1)
-    #print(fmatch[0])
     fmatch = [[i, []] for i in a]
     fmatch = finalize_sec(c, d, fmatch, options=1) #to print and match with gvkey
-    #print(fmatch[0])
-    #for i in fmatch:
-        #print(i)
-    # Need to mathc to gvkey.
+
     crsp_comp = 'C:/Users/Panqiao/Documents/Research/SS - All/CRSPCOMPSTAT/CRSPCOMPSTATLINK.csv'
     fhand_CRPCM = [x for x in csv.reader(open(crsp_comp, 'r'), delimiter=',')][1:]
     #for i in fhand_CRPCM:
@@ -502,110 +474,87 @@ def match_names(a, b, c, d):
     CRSP_permco = [[x, int(i[9]), i[0]] for x, i in enumerate(fhand_CRPCM)]
 
     dict_crsp, dict_gvkey = sort_return(CRSP_permco)
-    #dict_sec = sort_return(fmatch_permno)
+
     print(dict_crsp)
     print(dict_gvkey)
-    #for i in dict_sec:
-        #print(i)
-        #print(int(i[1]))
-    #print(dict_crsp)
+
     for_time = 1
-    count_time = 0
+    count_steps = 0
     Average_time_take = 0
+    gvkey = [[] for i in a]
+    start = timer()
     for i, item in enumerate(fmatch_permno):
-        start = timer()
-        #new list gvkey
-        #gvkey = []
-        gvkey = [[] for i in a]
-        matches = []
-        #if not item[9]: #no permno
+        count_steps += 1
+        #print(i)
+        if count_steps == 1000:
+            print("We have about", len(fmatch_permno)-i, "steps to go")
+            count_steps = 0
+
+        if item == "PMCRSP":
+            gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9]
+                       ,fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4]
+                       ,fmatch[i][3], fmatch[i][1], fmatch[i][0]]
+            continue
+
         if not item:
             gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9]
-                       ,fmatch[i][6], fmatch[i][7] ,fmatch[i][8], fmatch[i][4]
+                       ,fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4]
                        ,fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-            #continue
+            continue
 
         #if item[9]: #have permno
         if item:
             got_gvkey = dict_gvkey.get(int(item))
-            #print(got_gvkey)
             if got_gvkey:
-                #print("GOOT IT")
                 gvkey[i] = [got_gvkey, fmatch[i][2], fmatch[i][5], fmatch[i][9],
                             fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
                             fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                #continue
+                continue
+
             elif got_gvkey == None:
                 indices_a = dict_crsp.get(int(item))
-
-            if indices_a == None:
-                indices_a = []
-            #print(indices_a)
-            #if len(indices_a) == 1: #only one permno match
-                #gvkey[i] = [fhand_CRPCM[indices_a[0]][0], fmatch[i][2], fmatch[i][5], fmatch[i][9],
-                            #fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
-                            #fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                #continue
-            if len(indices_a) > 1: #multiple permno match, pick one that has correct dates
-                gvkey_ac = []
-                for x in indices_a:
-                    gvkey_ac.append(fhand_CRPCM[x][0])
-                if len(set(gvkey_ac)) == 1:
-                    gvkey[i] = [list(set(gvkey_ac))[0], fmatch[i][2], fmatch[i][5], fmatch[i][9],
-                                fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
-                                fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                if len(set(gvkey_ac)) > 1:
-                    indexe_t = []
+                if indices_a == None:
+                    indices_a = []
+                if len(indices_a) > 1: #multiple permno match, pick one that has correct dates
+                    gvkey_ac = []
                     for x in indices_a:
-                       # if (fhand_CRPCM[x][11] >= item[4] >= fhand_CRPCM[x][10]):
-                       if (fhand_CRPCM[x][11] >= fmatch[i][4] >= fhand_CRPCM[x][10]):
-                            indexe_t.append(x)
-                    if len(set(indexe_t)) == 1:
-                        gvkey[i] = [fhand_CRPCM[indexe_t[0]][0], fmatch[i][2], fmatch[i][5], fmatch[i][9],
+                        gvkey_ac.append(fhand_CRPCM[x][0])
+                    if len(set(gvkey_ac)) == 1:
+                        gvkey[i] = [list(set(gvkey_ac))[0], fmatch[i][2], fmatch[i][5], fmatch[i][9],
                                     fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
                                     fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                    if len(set(indexe_t)) > 1:
-                        gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9],
-                                    fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
-                                    fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                        # Not many, no need to worry about it now
-                        #print("MORETANONE")
-                        #print(item)
-                        #print(indexe_t)
-                        None
-                    if len(set(indexe_t)) == 0:
-                        gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9],
-                                    fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
-                                    fmatch[i][3], fmatch[i][1], fmatch[i][0]]
-                        #Not many, no need to worry about it now
-                            #print(fhand_CRPCM[x])
-                        None
-        #print(gvkey[i])
-        end = timer()
-        if for_time <= 100:
-            count_time = count_time + (end - start)
-        #print(end - start)
-        if for_time == 100:
-            count_time = count_time + (end - start)
-            Average_time_take = (count_time/(60*60*100))*(len(fmatch)-i)
-            print(i)
-            print("This many to go:",(len(fmatch)-i))
-            for_time = 1
-            count_time = 0
-            print("At this speed it will take", Average_time_take, "hours to finish")
-
-        for_time+=1
+                    if len(set(gvkey_ac)) > 1:
+                        indexe_t = []
+                        for x in indices_a:
+                           if (fhand_CRPCM[x][11] >= fmatch[i][4] >= fhand_CRPCM[x][10]):
+                                indexe_t.append(x)
+                        if len(set(indexe_t)) == 1:
+                            gvkey[i] = [fhand_CRPCM[indexe_t[0]][0], fmatch[i][2], fmatch[i][5], fmatch[i][9],
+                                        fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
+                                        fmatch[i][3], fmatch[i][1], fmatch[i][0]]
+                        if len(set(indexe_t)) > 1:
+                            gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9],
+                                        fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
+                                        fmatch[i][3], fmatch[i][1], fmatch[i][0]]
+                            # Not many, no need to worry about it now
+                            #print("MORETANONE")
+                            #print(item)
+                            #print(indexe_t)
+                            None
+                        if len(set(indexe_t)) == 0:
+                            gvkey[i] = ["", fmatch[i][2], fmatch[i][5], fmatch[i][9],
+                                        fmatch[i][6], fmatch[i][7], fmatch[i][8], fmatch[i][4],
+                                        fmatch[i][3], fmatch[i][1], fmatch[i][0]]
+                            #Not many, no need to worry about it now
+                                #print(fhand_CRPCM[x])
+                            None
 
 
     names_var = ['path', 'doc_type', 'filing_type', 'filing_type_a', 'filing_date',
                 'document_date', 'incorp', 'exchange','conm', 'permco','DSE_date','DSEe_date', 'permno']
 
     sec_final = 'C:/Users/Panqiao/Documents/Research/SS - All/Final'
-    write_file(sec_final, 'sec_gvkey', gvkey, 'w')
-
-
-
-
+    write_file(sec_final, 'sec_gvkey.txt', gvkey, 'w')
 
 
     return None
