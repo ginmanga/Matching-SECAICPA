@@ -2,6 +2,7 @@ import datetime, csv
 from sas7bdat import SAS7BDAT
 import pandas as pd
 from timeit import default_timer as timer
+import pandasql as ps
 
 count = 0
 COMP_CR = 'C:/Users/Panqiao/Documents/Research/SS - All/COMPSTAT/adsprate.sas7bdat'
@@ -33,36 +34,31 @@ def sas_to_dataframe(file_path):
 
 CS = pd.read_csv(COMP_COMP, sep="\t", nrows=1000, usecols=[0, 1,2 ,3 ,925 ,1823] )#, header=None)
 CR = pd.read_csv(COMP_CRS, sep=",", nrows=1000)
+CSS = CS[(CS.gvkey == 1004)]
 print(CS.describe)
 print(CR.describe)
 CS.dtypes
 CR.dtypes
-#print(CR.describe)
-#print(CR['gvkey'])
-#fhand_COMP = [x[0] for x in csv.reader(open(COMP_COMP,'r') , delimiter='\t')]
-#line = open(COMP_COMP).readline().split()
-#print(line)
-#print(type(line))
-#line = open(COMP_COMP).readline().split()
-#lines = open(COMP_COMP).readlines()
-#crispy = line [0:10]
-#for i, item in enumerate(line):
-    #if item == 'at':
-        #print(i, item)
-    #if 'sic' in item:
-        #print(i, item)
-#at 94
-#gvkey 0
-#datadate 1
-#fyear 2
-#indfmt 3
-#sich 925
-#sic 1823
-#count = 0
-#while count < 11:
-#print(len(lines))
-#for i in range(0:len(lines))
-    #crispy = lines[count:count+1]
-    #line_1 = [line.split("\t") for line in crispy]
-    #print(line_1)
-    #count += 1
+dates_CR = CR['datadate'].tolist() # turn date into python list
+for x, item in enumerate(dates_CR):
+    dates_CR[x] = "".join(item.split("-"))
+
+CR.astype({'mdatadate': 'int64'}).dtypes
+
+    #file.writelines('\t'.join(i) + '\n' for i in data)
+CSSmerged = pd.merge(CSS, CRN, left_on=['gvkey','datadate'], right_on = ['gvkey','mdatadate'], how='left')
+#df.astype({'col1': 'int32'}).dtypes
+#CR.astype({'mdatadate': 'int64'}).dtypes #change variable type
+#CR.rename(columns = {'datadate':'oldate'}) #ranme a variable
+
+
+
+sqlcode = '''
+select A.cusip
+from A
+inner join B on A.cusip=B.ncusip
+where A.fdate >= B.namedt and A.fdate <= B.nameenddt
+group by A.cusip
+'''
+
+newdf = ps.sqldf(sqlcode,locals())
